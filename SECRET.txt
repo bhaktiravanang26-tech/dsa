@@ -1,0 +1,780 @@
+DSA 1
+
+
+#include <iostream>
+using namespace std;
+
+struct Student
+{
+    int prn;
+    int date;
+    int month;
+};
+
+int main()
+{
+    Student A[50], B[50], C[100];
+    int n, m;
+
+    cout << "Enter number of students in Division A: ";
+    cin >> n;
+
+    cout << "Enter PRN, date and month for Division A:\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cin >> A[i].prn >> A[i].date >> A[i].month;
+    }
+
+    cout << "Enter number of students in Division B: ";
+    cin >> m;
+
+    cout << "Enter PRN, date and month for Division B:\n";
+
+    for (int i = 0; i < m; i++)
+    {
+        cin >> B[i].prn >> B[i].date >> B[i].month;
+    }
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < n && j < m)
+    {
+        if (A[i].month < B[j].month ||
+           (A[i].month == B[j].month &&
+            A[i].date <= B[j].date))
+        {
+            C[k] = A[i];
+            i++;
+        }
+        else
+        {
+            C[k] = B[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n)
+    {
+        C[k] = A[i];
+        i++;
+        k++;
+    }
+
+    while (j < m)
+    {
+        C[k] = B[j];
+        j++;
+        k++;
+    }
+
+    cout << "\nCombined Sorted DOB List:\n";
+    cout << "PRN\tDate\tMonth\n";
+
+    for (int x = 0; x < k; x++)
+    {
+        cout << C[x].prn << "\t"
+             << C[x].date << "\t"
+             << C[x].month << endl;
+    }
+
+    return 0;
+}
+
+
+DSA 2
+
+
+#include <iostream>
+using namespace std;
+
+struct Node
+{
+    int prn;
+    Node* next;
+};
+
+// Insert a node at the end
+void insert(Node*& head, int x)
+{
+    Node* temp = new Node;
+    temp->prn = x;
+    temp->next = NULL;
+
+    if (head == NULL)
+    {
+        head = temp;
+    }
+    else
+    {
+        Node* p = head;
+
+        while (p->next != NULL)
+            p = p->next;
+
+        p->next = temp;
+    }
+}
+
+// Search for a PRN
+bool search(Node* head, int x)
+{
+    while (head != NULL)
+    {
+        if (head->prn == x)
+            return true;
+
+        head = head->next;
+    }
+
+    return false;
+}
+
+// Display linked list
+void display(Node* head)
+{
+    if (head == NULL)
+    {
+        cout << "Empty";
+        return;
+    }
+
+    while (head != NULL)
+    {
+        cout << head->prn << " ";
+        head = head->next;
+    }
+    cout << endl;
+}
+
+int main()
+{
+    Node *A = NULL, *B = NULL;
+    Node *U = NULL, *I = NULL;
+    Node *onlyA = NULL, *onlyB = NULL;
+
+    int total, n, m, x;
+    int cls[100];
+
+    cout << "Enter total number of students: ";
+    cin >> total;
+
+    cout << "Enter all class PRNs:\n";
+
+    for (int i = 0; i < total; i++)
+        cin >> cls[i];
+
+    cout << "Enter number of Vanilla lovers: ";
+    cin >> n;
+
+    cout << "Enter their PRNs:\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cin >> x;
+        insert(A, x);
+    }
+
+    cout << "Enter number of Butterscotch lovers: ";
+    cin >> m;
+
+    cout << "Enter their PRNs:\n";
+
+    for (int i = 0; i < m; i++)
+    {
+        cin >> x;
+        insert(B, x);
+    }
+
+    // UNION: A or B or both
+    Node* p = A;
+
+    while (p != NULL)
+    {
+        insert(U, p->prn);
+        p = p->next;
+    }
+
+    p = B;
+
+    while (p != NULL)
+    {
+        if (!search(U, p->prn))
+            insert(U, p->prn);
+
+        p = p->next;
+    }
+
+    // INTERSECTION: A and B
+    p = A;
+
+    while (p != NULL)
+    {
+        if (search(B, p->prn))
+            insert(I, p->prn);
+
+        p = p->next;
+    }
+
+    // ONLY VANILLA: A - B
+    p = A;
+
+    while (p != NULL)
+    {
+        if (!search(B, p->prn))
+            insert(onlyA, p->prn);
+
+        p = p->next;
+    }
+
+    // ONLY BUTTERSCOTCH: B - A
+    p = B;
+
+    while (p != NULL)
+    {
+        if (!search(A, p->prn))
+            insert(onlyB, p->prn);
+
+        p = p->next;
+    }
+
+    // NEITHER
+    int neither = 0;
+
+    for (int i = 0; i < total; i++)
+    {
+        if (!search(A, cls[i]) && !search(B, cls[i]))
+            neither++;
+    }
+
+    cout << "\nUnion: ";
+    display(U);
+
+    cout << "Intersection: ";
+    display(I);
+
+    cout << "Only Vanilla: ";
+    display(onlyA);
+
+    cout << "Only Butterscotch: ";
+    display(onlyB);
+
+    cout << "Neither: " << neither;
+
+    return 0;
+}
+
+
+DSA 3
+
+
+#include <iostream>
+#include <stack>
+#include <string>
+#include <cctype>
+using namespace std;
+
+// Check operator precedence
+int priority(char op)
+{
+    if (op == '*' || op == '/')
+        return 2;
+
+    if (op == '+' || op == '-')
+        return 1;
+
+    return 0;
+}
+
+// Check whether character is an operator
+bool isOperator(char ch)
+{
+    return ch == '+' || ch == '-' ||
+           ch == '*' || ch == '/';
+}
+
+// Convert infix to postfix
+bool infixToPostfix(string infix, string &postfix)
+{
+    stack<char> s;
+
+    for (int i = 0; i < infix.length(); i++)
+    {
+        char ch = infix[i];
+
+        if (ch == ' ')
+            continue;
+
+        // If operand
+        if (isalnum(ch))
+        {
+            postfix += ch;
+        }
+
+        // If opening bracket
+        else if (ch == '(')
+        {
+            s.push(ch);
+        }
+
+        // If closing bracket
+        else if (ch == ')')
+        {
+            while (!s.empty() && s.top() != '(')
+            {
+                postfix += s.top();
+                s.pop();
+            }
+
+            if (s.empty())
+                return false;
+
+            s.pop();
+        }
+
+        // If operator
+        else if (isOperator(ch))
+        {
+            while (!s.empty() && s.top() != '(' &&
+                   priority(s.top()) >= priority(ch))
+            {
+                postfix += s.top();
+                s.pop();
+            }
+
+            s.push(ch);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Pop remaining operators
+    while (!s.empty())
+    {
+        if (s.top() == '(')
+            return false;
+
+        postfix += s.top();
+        s.pop();
+    }
+
+    return true;
+}
+
+// Evaluate postfix expression
+bool evaluatePostfix(string postfix, int &answer)
+{
+    stack<int> s;
+
+    for (int i = 0; i < postfix.length(); i++)
+    {
+        char ch = postfix[i];
+
+        // If operand
+        if (isdigit(ch))
+        {
+            s.push(ch - '0');
+        }
+
+        // If operator
+        else if (isOperator(ch))
+        {
+            if (s.size() < 2)
+                return false;
+
+            int b = s.top();
+            s.pop();
+
+            int a = s.top();
+            s.pop();
+
+            int result = 0;
+
+            switch (ch)
+            {
+                case '+': result = a + b; break;
+                case '-': result = a - b; break;
+                case '*': result = a * b; break;
+
+                case '/':
+                    if (b == 0)
+                        return false;
+                    result = a / b;
+                    break;
+            }
+
+            s.push(result);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    if (s.size() != 1)
+        return false;
+
+    answer = s.top();
+    return true;
+}
+
+int main()
+{
+    string infix, postfix = "";
+    int answer;
+
+    cout << "Enter infix expression: ";
+    cin >> infix;
+
+    if (!infixToPostfix(infix, postfix))
+    {
+        cout << "Invalid expression";
+        return 0;
+    }
+
+    cout << "Postfix expression: " << postfix << endl;
+
+    if (evaluatePostfix(postfix, answer))
+        cout << "Result: " << answer << endl;
+    else
+        cout << "Cannot evaluate expression";
+
+    return 0;
+}
+
+
+DSA 4
+
+
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int M;
+
+    cout << "Enter maximum number of orders: ";
+    cin >> M;
+
+    if (M <= 0)
+    {
+        cout << "Invalid queue size";
+        return 0;
+    }
+
+    int *q = new int[M];
+
+    int front = -1;
+    int rear = -1;
+    int choice, order;
+
+    do
+    {
+        cout << "\n--- PIZZA PARLOUR ---";
+        cout << "\n1. Place Order";
+        cout << "\n2. Serve Order";
+        cout << "\n3. Display Orders";
+        cout << "\n4. Exit";
+        cout << "\nEnter choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                // Enqueue
+
+                if ((rear + 1) % M == front)
+                {
+                    cout << "Queue is Full!";
+                }
+                else
+                {
+                    cout << "Enter order number: ";
+                    cin >> order;
+
+                    if (front == -1)
+                    {
+                        front = 0;
+                        rear = 0;
+                    }
+                    else
+                    {
+                        rear = (rear + 1) % M;
+                    }
+
+                    q[rear] = order;
+
+                    cout << "Order placed successfully!";
+                }
+                break;
+
+            case 2:
+                // Dequeue
+
+                if (front == -1)
+                {
+                    cout << "No orders available!";
+                }
+                else
+                {
+                    cout << "Serving order: " << q[front];
+
+                    if (front == rear)
+                    {
+                        front = -1;
+                        rear = -1;
+                    }
+                    else
+                    {
+                        front = (front + 1) % M;
+                    }
+                }
+                break;
+
+            case 3:
+                // Display
+
+                if (front == -1)
+                {
+                    cout << "Queue is Empty!";
+                }
+                else
+                {
+                    cout << "\nPending Orders: ";
+
+                    int i = front;
+
+                    while (true)
+                    {
+                        cout << q[i] << " ";
+
+                        if (i == rear)
+                            break;
+
+                        i = (i + 1) % M;
+                    }
+                }
+                break;
+
+            case 4:
+                cout << "Exiting Pizza Parlour...";
+                break;
+
+            default:
+                cout << "Invalid choice!";
+        }
+
+    } while (choice != 4);
+
+    delete[] q;
+
+    return 0;
+}
+
+DSA 7
+
+
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+const int V = 5;
+
+string landmark[V] = {
+    "Main Gate",
+    "Admin Office",
+    "Library",
+    "Laboratory",
+    "Canteen"
+};
+
+// DFS using adjacency matrix
+void DFS(int v, int matrix[V][V], bool visited[])
+{
+    visited[v] = true;
+
+    cout << landmark[v] << " ";
+
+    for (int i = 0; i < V; i++)
+    {
+        if (matrix[v][i] == 1 && !visited[i])
+        {
+            DFS(i, matrix, visited);
+        }
+    }
+}
+
+// BFS using adjacency list
+void BFS(int start, vector<int> adjList[])
+{
+    bool visited[V] = {false};
+
+    queue<int> q;
+
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty())
+    {
+        int v = q.front();
+        q.pop();
+
+        cout << landmark[v] << " ";
+
+        for (int i : adjList[v])
+        {
+            if (!visited[i])
+            {
+                visited[i] = true;
+                q.push(i);
+            }
+        }
+    }
+}
+
+int main()
+{
+    int matrix[V][V] = {0};
+
+    vector<int> adjList[V];
+
+    int edges, u, v;
+
+    cout << "College Landmarks:\n";
+
+    for (int i = 0; i < V; i++)
+    {
+        cout << i << " - " << landmark[i] << endl;
+    }
+
+    cout << "\nEnter number of edges: ";
+    cin >> edges;
+
+    cout << "Enter connected vertices (u v):\n";
+
+    for (int i = 0; i < edges; i++)
+    {
+        cin >> u >> v;
+
+        matrix[u][v] = 1;
+        matrix[v][u] = 1;
+
+        adjList[u].push_back(v);
+        adjList[v].push_back(u);
+    }
+
+    // Display adjacency matrix
+    cout << "\nAdjacency Matrix:\n";
+
+    for (int i = 0; i < V; i++)
+    {
+        for (int j = 0; j < V; j++)
+        {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    // Display adjacency list
+    cout << "\nAdjacency List:\n";
+
+    for (int i = 0; i < V; i++)
+    {
+        cout << landmark[i] << " -> ";
+
+        for (int j : adjList[i])
+        {
+            cout << landmark[j] << " ";
+        }
+
+        cout << endl;
+    }
+
+    int start;
+
+    cout << "\nEnter starting vertex (0-4): ";
+    cin >> start;
+
+    if (start < 0 || start >= V)
+    {
+        cout << "Invalid starting vertex!";
+        return 0;
+    }
+
+    // Perform DFS
+    bool visited[V] = {false};
+
+    cout << "\nDFS Traversal:\n";
+    DFS(start, matrix, visited);
+
+    // Perform BFS
+    cout << "\n\nBFS Traversal:\n";
+    BFS(start, adjList);
+
+    return 0;
+}
+
+DSA 8
+
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int V = 5;
+
+string city[V] = {
+    "Pune",
+    "Mumbai",
+    "Delhi",
+    "Bengaluru",
+    "Chennai"
+};
+
+int main()
+{
+    vector<pair<int, int>> graph[V];
+
+    int edges, u, v, cost;
+
+    cout << "Cities:\n";
+
+    for (int i = 0; i < V; i++)
+    {
+        cout << i << " - " << city[i] << endl;
+    }
+
+    cout << "\nEnter number of flight routes: ";
+    cin >> edges;
+
+    cout << "\nEnter source destination and time:\n";
+
+    for (int i = 0; i < edges; i++)
+    {
+        cin >> u >> v >> cost;
+
+        graph[u].push_back({v, cost});
+    }
+
+    cout << "\nFlight Routes:\n";
+
+    for (int i = 0; i < V; i++)
+    {
+        cout << city[i] << " -> ";
+
+        for (auto flight : graph[i])
+        {
+            cout << city[flight.first]
+                 << " (" << flight.second
+                 << " minutes) ";
+        }
+
+        cout << endl;
+    }
+
+    return 0;
+}
